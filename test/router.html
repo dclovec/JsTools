@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+        <title>Router Demo</title>
+    </head>
+
+    <body>
+
+        <script src="../source/pageRouter.js" type="text/javascript" charset="utf-8"></script>
+        <!--<script src="../minified/pageRouter.min.js" type="text/javascript" charset="utf-8"></script>-->
+        <script type="text/javascript">
+            pageRouter.setAnalyseFunc(function(url) {
+                var s = url.search,
+                    obj = {},
+                    item;
+                if (!!s) {
+                    s = (s.slice(1).split("="))[1].split("-");
+                    for (var i = 0, len = s.length; i < len; i++) {
+                        item = s[i].split("_");
+                        obj[item[0]] = item[1];
+                    }
+                }
+                obj = {
+                    key: obj["pt"] || "default",
+                    params: obj
+                };
+                return obj;
+            }).register("main", function() {
+                console.log("main page loaded.");
+            }).beginRoute(true);
+        </script>
+    </body>
+
+</html>

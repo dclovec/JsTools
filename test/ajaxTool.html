@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+        <title>ajaxTool Demo</title>
+    </head>
+
+    <body>
+        <script src="../source/ajaxTool.js" type="text/javascript" charset="utf-8"></script>
+        <script type="text/javascript">
+            var doAbort=ajaxTool.setConfig({
+                //async:false,
+                responseType:"json",
+                overrideMime:"application/json",
+                success:function(response, xhr) {
+                	console.log("response is :", response);
+                },
+                error:function (xhr) {
+                	console.log(xhr);
+                }
+            }).request("./getdata.php")
+        </script>
+    </body>
+</html>

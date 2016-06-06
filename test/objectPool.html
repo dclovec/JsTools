@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+        <title>Object Pool Demo</title>
+    </head>
+
+    <body>
+        <script src="../source/objectPool.js" type="text/javascript" charset="utf-8"></script>
+        <script type="text/javascript">
+            var pool;
+objectPool.setCapacity(100);
+            function set(i, isDispose) {
+                var obj = objectPool.new();
+                !pool && (pool = objectPool.getPool());
+                console.log(JSON.stringify(pool));
+                obj.set("name" + i, "robin").set("age" + i, 27);
+                console.log(JSON.stringify(pool));
+                console.log("name:" + obj.get("name"+i));
+                console.log("age:" + obj.get("age"+i));
+                isDispose && obj.collect();
+                console.log(JSON.stringify(pool));
+                console.log("--------------------------------------------------");
+            }
+            for (var i = 0; i < 50; i++) {
+                set(i);
+            }
+        </script>
+    </body>
+
+</html>

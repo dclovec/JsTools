@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>Remove Array Repeat Item Demo</title>
+	</head>
+	<body>
+	    <script type="text/javascript">
+	    	var arr=[],
+	    	    count=50000,
+	    	    tm,
+	    	    max=10;
+	    	for(var i=0;i<count;i++){
+	    	    tm=~~(max*Math.random())+"item";
+	    	    //arr.indexOf(tm)===-1 && console.log(tm);
+	    	    arr[i]=tm;
+	    	}
+	    	console.log(arr);
+	    	
+	    	/*begin remove*/
+	    	var item, tmp=[];
+	    	console.time("time");
+	    	for(i=0;i<count;i++){
+	    	    item=arr[i];
+	    	    (tmp.indexOf(item)===-1) && (tmp[tmp.length]=item);
+	    	}
+            console.timeEnd("time");
+	    	
+	    	/*end remove*/
+            console.log(tmp);
+	    	
+	    </script>
+	</body>
+</html>
