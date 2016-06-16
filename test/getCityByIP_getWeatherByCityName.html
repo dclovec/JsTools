@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>Testing</title>
+		<style type="text/css">
+
+		</style>
+	</head>
+
+	<body>
+		<p id="datas"></p>
+		<script src="../source/getCityByIP.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../source/getWeatherByCityName.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript" charset="UTF-8">
+			getCityByIP(function (city) {
+				datas.innerHTML+="city info: "+JSON.stringify(city)+"<hr />";
+				city=city.city;
+				!!city && getWeatherByCityName({
+					city:city,
+					callback:function (weather) {
+						datas.innerHTML+="weather info: "+JSON.stringify(weather);
+					}
+				});
+			});
+		</script>
+	</body>
+
+</html>
