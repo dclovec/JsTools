@@ -8,4 +8,6 @@
     } else {
         window.ajaxTool = func();
     }
-})(window, function() {});
+})(window, function() {
+	
+});

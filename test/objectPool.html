@@ -11,15 +11,16 @@
         <script src="../source/objectPool.js" type="text/javascript" charset="utf-8"></script>
         <script type="text/javascript">
             var pool;
-objectPool.setCapacity(100);
+            objectPool.setCapacity(100);
+
             function set(i, isDispose) {
                 var obj = objectPool.new();
                 !pool && (pool = objectPool.getPool());
                 console.log(JSON.stringify(pool));
                 obj.set("name" + i, "robin").set("age" + i, 27);
                 console.log(JSON.stringify(pool));
-                console.log("name:" + obj.get("name"+i));
-                console.log("age:" + obj.get("age"+i));
+                console.log("name:" + obj.get("name" + i));
+                console.log("age:" + obj.get("age" + i));
                 isDispose && obj.collect();
                 console.log(JSON.stringify(pool));
                 console.log("--------------------------------------------------");
