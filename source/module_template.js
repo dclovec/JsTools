@@ -1,8 +1,6 @@
 !!window && (function(window, func) {
     if (typeof define === 'function' && define.amd) {
-        define(function() {
-            return func();
-        });
+        define(func);
     } else if (typeof exports === 'object') {
         module.exports = func;
     } else {
