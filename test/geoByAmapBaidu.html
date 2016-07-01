@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>Geo Location From Amap and Baidu</title>
+		<!--<style type="text/css">
+			#canv {
+				width: 300px;
+				height: 300px;
+			}
+		</style>-->
+	</head>
+
+	<body>
+		<div id="content"></div>
+		<canvas id="canv" width="300" height="300"></canvas>
+
+		<script type="text/javascript">
+			function log() {
+				var args = "",
+					count = arguments.length,
+					index;
+				for (index = 0; index < count; index++) {
+					args += JSON.stringify(arguments[index]) + "&nbsp;-**-&nbsp;";
+				}
+				content.innerHTML += "<p>" + args + "</p>";
+			}
+		</script>
+		<script src="../minified/computedStyles.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../minified/ajaxTool.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../source/isDomElement.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../source/geoByAmapBaidu.js?v=0.0.1" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var res;
+			var emptyImgBg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAANSURBVBhXYzh8+PB/AAffA0nNPuCLAAAAAElFTkSuQmCC";
+
+			geoByAmapBaidu.setConfig({
+				amapKey: "b0d1d6c3fab1cf2b4018f8be6f913d2e",
+				baiduMapKey: "27WpZtvmsCkUNPOrDuq3BrxuFCypaPX8"
+			});
+			//			var wid = geoByAmapBaidu.watch(function(data) {
+			//				log("watch1:", data);
+			//			});
+			//			var wid1 = geoByAmapBaidu.watch(function(data) {
+			//				log("watch2:", res = data);
+			//			});
+			//			log("wid:", wid, "wid1:", wid1);
+			geoByAmapBaidu.get(function(result) {
+				log("get3:", result);
+				var img = document.createElement("img"), //new Image(),
+					ctx = canv.getContext("2d");
+				var zoom = 3;
+				img.src = result.setDefaultStaticImgInfo({
+					width: 300,
+					height: 300,
+					zoom: zoom
+				}).getStaticImgUrl();
+				var cm = canvasMap.get(canv);
+				img.onload = function() {
+					ctx.drawImage(img, 0, 0);
+					window.setTimeout(function() {
+						cm.setImage(img.src).setDisplayQueue(function() {
+							zoom += 4;
+							zoom > 18 && (zoom = 18);
+							var url = result.getStaticImgUrl({
+								zoom: zoom
+							});
+							return {
+								url: url,
+								state: zoom < 18
+							};
+						});
+
+						function finishScale() {
+							zoom < 18 && window.setTimeout(function() {
+								cm.scaleThenNext(85, 0.2, 4, finishScale);
+							}, 2000);
+						}
+						cm.scaleThenNext(85, 0.2, 4, finishScale);
+					}, 5000);
+				};
+			});
+
+			var canvasMap = (function(win, doc) {
+				var pobj,
+					loadNext,
+					undef,
+					emptyImgBg;
+
+				undef = void 0;
+				emptyImgBg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAANSURBVBhXYzh8+PB/AAffA0nNPuCLAAAAAElFTkSuQmCC";
+
+				function scale(ctx, img, width, height, preScale, finalScale, per, time, callback) {
+					win.setTimeout(function() {
+						var nowScale = preScale + per,
+							x,
+							y;
+						nowScale > finalScale && (nowScale = finalScale);
+						x = ~~(0.5 * width * (1 - nowScale));
+						y = ~~(0.5 * height * (1 - nowScale));
+						ctx.drawImage(img, x, y, ~~(width * nowScale), ~~(height * nowScale));
+						if (nowScale < finalScale) {
+							scale(ctx, img, width, height, nowScale, finalScale, per, time, callback);
+							return;
+						}!!callback && callback();
+					}, time);
+				}
+
+				function register(canvas, imgElement) {
+					var cs = computedStyles(canvas),
+						width = +(cs.get("width").replace(/px/ig, "")),
+						height = +(cs.get("height").replace(/px/ig, "")),
+						obj,
+						dQueue,
+						qIndex,
+						ctx,
+						loadObj,
+						img;
+
+					ctx = canvas.getContext("2d");
+					img = document.createElement("img");
+					img.style.cssText = "width:" + width + "px;heigth:" + height + "px;";
+					img.onload = function() {
+						ctx.drawImage(img, 0, 0);
+					};
+					if (undef === imgElement) {
+						img.src = emptyImgBg;
+					} else if (typeof imgElement === "string") {
+						img.src = imgElement;
+					} else if (isDomElement(imgElement)) {
+						img.src = imgElement.src;
+					} else {
+						console.warn("Invalid image param, do nothing.");
+					}
+
+					return obj = {
+						context2d: ctx,
+						scaleThenNext: function(time, step, finalS, finish) {
+							scale(ctx, img, width, height, 1, finalS, step, time, function() {
+								var image,
+									url,
+									state;
+								if (!!loadNext && !!(url = loadNext())) {
+									image = document.createElement("img");
+									state = false;
+									image.onload = function() {
+										state = true;
+										ctx.drawImage(image, 0, 0, width, height);
+										img.src=url;
+										!!finish && finish();
+									};
+									image.src = url;
+									!state && (img.src = emptyImgBg, ctx.drawImage(img, 0, 0, width, height));
+									return;
+								}
+								finish();
+							});
+							return obj;
+						},
+						setCanvasSize: function(size) {
+							!!size.width && (canvas.width = size.width);
+							!!size.height && (canvas.width = size.height);
+							return obj;
+						},
+						setDisplayQueue: function(queue, finishCallback) {
+							var type = (typeof queue).toUpperCase();
+							dQueue = queue;
+							qIndex = 0;
+							if ("FUNCTION" === type) {
+								loadNext = (function(q, f) {
+									return function() {
+										var res;
+										if (q) {
+											res = q();
+											!res.state && window.setTimeout(function() {
+												!!f && f();
+												q = f = loadNext = null;
+											}, 17);
+											return res.url;
+										}
+									}
+								})(queue, finishCallback);
+								return obj;
+							} else if (queue instanceof Array) {
+								loadNext = (function(q, index, len, finish) {
+									return function() {
+										var item;
+										if (!!q) {
+											item = q[index++];
+											(typeof item === "function") && (item = item());
+											(index === len) && window.setTimeout(function() {
+												!!finish && finish();
+												q = index = len = finish = loadNext = null;
+											}, 17);
+											return item;
+										}
+									};
+								})(queue, 0, queue.length, finishCallback);
+								return obj;
+							}
+							console.error("param error, invalid.");
+							return obj;
+						},
+						setLoadingTips:function(func){
+							loadObj=func;
+							return obj;
+						},
+						setImage: function(image) {
+							if (typeof image === "string") {
+								img.src = image;
+								return obj;
+							} else if (isDomElement(image)) {
+								img.src = image.src;
+								return obj;
+							}
+							console.warn("Param invalid, do nothing.");
+							return obj;
+						}
+					};
+				}
+
+				return pobj = {
+					get: register
+				};
+			})(window, document);
+		</script>
+	</body>
+
+</html>
